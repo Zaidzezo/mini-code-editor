@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CodeForge Pro - Advanced Code Editor</title>
+  <meta name="description" content="Professional code editor with live preview, error console, sharing, and templates." />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div class="logo">
+        <i class="fas fa-hammer"></i>
+      </div>
+      <div class="divider"></div>
+      <div class="title">CodeForge</div>
+    </div>
+
+    <nav class="header-nav">
+      <button class="nav-btn" id="templateBtn" title="Load templates">
+        <i class="fas fa-file-import"></i> <span>Templates</span>
+      </button>
+      <button class="nav-btn" id="shareBtn" title="Share code via URL">
+        <i class="fas fa-share-alt"></i> <span>Share</span>
+      </button>
+    </nav>
+
+    <div class="header-right">
+      <button class="btn-icon secondary" id="themeToggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="btn-icon secondary" id="settingsBtn" title="Settings">
+        <i class="fas fa-cog"></i>
+      </button>
+      <button class="btn-icon secondary" id="saveBtn" title="Save project">
+        <i class="fas fa-download"></i>
+      </button>
+      <button class="btn-icon secondary" id="loadBtn" title="Load project">
+        <i class="fas fa-upload"></i>
+      </button>
+      <input id="openFile" type="file" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <!-- Modal: Templates -->
+  <div id="templateModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-folder-open"></i> Project Templates</h2>
+        <button class="close-btn">&times;</button>
+      </div>
+      <div class="templates-grid">
+        <button class="template-card" data-template="starter">
+          <div class="template-icon"><i class="fas fa-rocket"></i></div>
+          <div class="template-name">Starter</div>
+          <div class="template-desc">Basic HTML/CSS/JS</div>
+        </button>
+        <button class="template-card" data-template="landing">
+          <div class="template-icon"><i class="fas fa-globe"></i></div>
+          <div class="template-name">Landing Page</div>
+          <div class="template-desc">Modern landing page</div>
+        </button>
+        <button class="template-card" data-template="portfolio">
+          <div class="template-icon"><i class="fas fa-briefcase"></i></div>
+          <div class="template-name">Portfolio</div>
+          <div class="template-desc">Portfolio showcase</div>
+        </button>
+        <button class="template-card" data-template="dashboard">
+          <div class="template-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="template-name">Dashboard</div>
+          <div class="template-desc">Data dashboard</div>
+        </button>
+        <button class="template-card" data-template="form">
+          <div class="template-icon"><i class="fas fa-wtf"></i></div>
+          <div class="template-name">Contact Form</div>
+          <div class="template-desc">Contact form</div>
+        </button>
+        <button class="template-card" data-template="todo">
+          <div class="template-icon"><i class="fas fa-tasks"></i></div>
+          <div class="template-name">Todo App</div>
+          <div class="template-desc">Interactive todo list</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Share -->
+  <div id="shareModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-share-nodes"></i> Share Your Code</h2>
+        <button class="close-btn">&times;</button>
+      </div>
+      <div class="share-content">
+        <p>Share this URL with your friends:</p>
+        <div class="share-url">
+          <input type="text" id="shareUrl" readonly>
+          <button class="btn-copy" id="copyUrlBtn">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        </div>
+        <div class="share-options">
+          <button class="btn secondary" id="qrCodeBtn">
+            <i class="fas fa-qrcode"></i> QR Code
+          </button>
+        </div>
+        <div id="qrCodeContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main>
+    <!-- Left Panel: Task & Settings -->
+    <aside class="panel left-panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-pencil-alt"></i> Task</h2>
+      </div>
+
+      <div class="panel-content">
+        <div class="form-group">
+          <label for="assignment">Assignment</label>
+          <textarea id="assignment" class="textarea" placeholder="Describe the task here..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="testArea">Tests <span class="badge">Optional</span></label>
+          <textarea id="testArea" class="textarea" placeholder="Validation tests in JavaScript..."></textarea>
+        </div>
+
+        <div class="tips">
+          <h4><i class="fas fa-keyboard"></i> Shortcuts</h4>
+          <ul>
+            <li><kbd>Ctrl+S</kbd> Save</li>
+            <li><kbd>Ctrl+Enter</kbd> Run</li>
+            <li><kbd>Ctrl+Shift+F</kbd> Format</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Editor & Preview -->
+    <section class="center-panel">
+      <div class="editor-container">
+        <div class="editor-header">
+          <div class="tabs-wrapper">
+            <div class="tabs" id="webTabs" role="tablist">
+              <button class="tab active" role="tab" data-pane="html">
+                <i class="fas fa-code"></i> HTML
+              </button>
+              <button class="tab" role="tab" data-pane="css">
+                <i class="fas fa-palette"></i> CSS
+              </button>
+              <button class="tab" role="tab" data-pane="js">
+                <i class="fas fa-cube"></i> JS
+              </button>
+            </div>
+          </div>
+          <div class="editor-actions">
+            <button class="btn-icon primary" id="runWeb" title="Run code">
+              <i class="fas fa-play"></i>
+            </button>
+            <button class="btn-icon secondary" id="openPreview" title="New window">
+              <i class="fas fa-external-link-alt"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="editor-panes">
+          <div class="editor-wrap" data-pane="html">
+            <div id="ed_html" class="editor"></div>
+          </div>
+          <div class="editor-wrap" data-pane="css" hidden>
+            <div id="ed_css" class="editor"></div>
+          </div>
+          <div class="editor-wrap" data-pane="js" hidden>
+            <div id="ed_js" class="editor"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split-container">
+        <div class="preview-container">
+          <div class="preview-header">
+            <h3><i class="fas fa-eye"></i> Preview</h3>
+            <button class="btn-icon secondary" id="refreshPreview">
+              <i class="fas fa-redo"></i>
+            </button>
+          </div>
+          <iframe id="preview" class="preview" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+        </div>
+
+        <div class="console-container">
+          <div class="console-header">
+            <h3><i class="fas fa-terminal"></i> Console</h3>
+            <div class="console-controls">
+              <select id="logFilter" class="log-filter">
+                <option value="all">All</option>
+                <option value="log">Logs</option>
+                <option value="error">Errors</option>
+                <option value="warn">Warnings</option>
+              </select>
+              <button class="btn-icon secondary" id="clearConsole">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div id="console" class="console"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel: Output -->
+    <aside class="panel right-panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-info-circle"></i> Info</h2>
+      </div>
+
+      <div class="panel-content">
+        <div class="output-controls">
+          <button class="btn small primary" id="runTests">
+            <i class="fas fa-vial"></i> Run Tests
+          </button>
+          <button class="btn secondary small" id="clearOut">
+            <i class="fas fa-broom"></i> Clear
+          </button>
+        </div>
+
+        <div id="output" class="output"></div>
+
+        <div class="stats">
+          <h4><i class="fas fa-chart-pie"></i> Stats</h4>
+          <div class="stat-item">
+            <span>HTML</span>
+            <span id="htmlSize">0 B</span>
+          </div>
+          <div class="stat-item">
+            <span>CSS</span>
+            <span id="cssSize">0 B</span>
+          </div>
+          <div class="stat-item">
+            <span>JS</span>
+            <span id="jsSize">0 B</span>
+          </div>
+          <div class="stat-item total">
+            <span>Total</span>
+            <span id="totalSize">0 B</span>
+          </div>
+        </div>
+
+        <div class="notes">
+          <h4><i class="fas fa-note-sticky"></i> Info</h4>
+          <ul>
+            <li>Browser-based editor</li>
+            <li>No server required</li>
+            <li>Auto-save enabled</li>
+            <li>Share via URL</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.43.2/ace.js" 
+    integrity="sha512-ZIa+FlPaGDSM+lTl9JaxnQvcfma7ETsOHd9Thbhp5u4RX1uYiDNW7XvUrXv4dJSPetXbiTzWilHEkSg4YpmltQ==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/2.10.0/qrious.min.js" crossorigin="anonymous"></script>
+  
+  <script src="script.js"></script>
+</body>
+</html>
